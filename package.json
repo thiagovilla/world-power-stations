@@ -1,0 +1,22 @@
+{
+  "name": "world-power-stations-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace=apps/frontend run dev",
+    "dev:backend": "cd apps/backend && ./gradlew bootRun",
+    "build:frontend": "npm --workspace=apps/frontend run build",
+    "build:backend": "cd apps/backend && ./gradlew build -x test",
+    "build": "npm run build:frontend && npm run build:backend",
+    "test:frontend": "npm --workspace=apps/frontend run test",
+    "test:backend": "cd apps/backend && ./gradlew test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "typecheck": "npm --workspace=apps/frontend run typecheck",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  }
+}

@@ -1,0 +1,29 @@
+# Node / Frontend
+node_modules/
+.cache/
+build/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Java / Backend
+apps/backend/.gradle/
+apps/backend/build/
+apps/backend/out/
+apps/backend/.idea/
+apps/backend/*.iml
+
+# IDE & Editor
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker volumes / persistence
+postgres_data/
