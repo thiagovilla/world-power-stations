@@ -1,0 +1,23 @@
+# Example Terraform Variables for AWS Free Tier Deployment
+aws_region        = "us-east-1"
+environment       = "production"
+project_name      = "world-power-stations"
+
+# Compute (AWS Free Tier: t3.micro)
+instance_type        = "t3.micro"
+ec2_root_volume_size = 20
+
+# Optional SSH Key (paste the contents of your ~/.ssh/id_rsa.pub or leave empty to use AWS SSM)
+ssh_public_key   = ""
+allowed_ssh_cidr = ["0.0.0.0/0"]
+
+# PostgreSQL Database (AWS Free Tier: db.t3.micro, 20GB storage)
+db_name              = "world_power_stations"
+db_username          = "wps_admin"
+db_password          = "SuperSecretSecurePassword123!" # Or leave empty to auto-generate
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+
+# S3 & CloudFront
+s3_bucket_prefix  = "wps-photos"
+enable_cloudfront = true

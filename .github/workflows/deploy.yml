@@ -54,7 +54,39 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Deploy services via AWS ECS / App Runner
+      - name: Deploy to AWS EC2 via SSH & Docker Compose
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        if: env.EC2_HOST != '' && env.EC2_SSH_KEY != ''
         run: |
-          echo "Deploying release ${{ github.sha }} to target environment: ${{ github.event.inputs.environment || 'production' }}"
-          # Deployment triggers (e.g., aws ecs update-service or AWS App Runner / Terraform deployment)
+          echo "Deploying release ${{ github.sha }} to EC2 Host: $EC2_HOST"
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Copy production compose file and nginx configs
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.prod.yml $EC2_USER@$EC2_HOST:/opt/wps/docker-compose.yml
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa nginx/nginx.conf $EC2_USER@$EC2_HOST:/opt/wps/nginx/nginx.conf
+
+          # Log in to ECR on remote EC2 host, pull images, and restart containers
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_HOST << EOF
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION || 'us-east-1' }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+            export ECR_REGISTRY=$ECR_REGISTRY
+            export IMAGE_TAG=$IMAGE_TAG
+            cd /opt/wps
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
+          EOF
+
+      - name: Invalidate CloudFront Cache
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+        if: env.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          echo "Invalidating CloudFront distribution cache: $CLOUDFRONT_DISTRIBUTION_ID"
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"

@@ -17,6 +17,12 @@
     "typecheck": "npm --workspace=apps/frontend run typecheck",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "tf:fmt": "cd terraform && terraform fmt",
+    "tf:init": "cd terraform && terraform init",
+    "tf:validate": "cd terraform && terraform validate",
+    "tf:plan": "cd terraform && terraform plan",
+    "tf:apply": "cd terraform && terraform apply",
+    "tf:destroy": "cd terraform && terraform destroy"
   }
 }
