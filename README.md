@@ -1,18 +1,27 @@
-# Welcome to React Router!
+# World Power Stations
 
-A modern, production-ready template for building full-stack React applications using React Router.
+World Power Stations (WPS) is an interactive world map of power generation and storage stations.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Stack
 
-## Features
+- Frontend: React, React Router, TailwindCSS
+- Backend: React Router API routes
+- Map library: MapLibre GL JS
+- Database: PostgreSQL with PostGIS and full-text search via pgvector
+- Testing: Jest, React Testing Library
+- Infrastructure: deployed to Vercel
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## Roadmap
+
+Versioning schema:
+
+* Major version: countries with the largest share of primary energy consumption from renewable sources as per the Statistical Review of World Energy (2025).
+* Minor version: sequential integer number prefixed with "V".
+* Patch version: sequential integer.
+
+Next major releases:
+
+* Iceland V1 (MVP/core features): main UI (world map with station details), energy source filters, SSR/SEO (ranks on Google), manual data input (no admin panel yet, but pulls data from API endpoint). Data = only power generation stations for now (no power storage data/icons).
 
 ## Getting Started
 
