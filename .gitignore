@@ -5,3 +5,6 @@
 # React Router
 /.react-router/
 /build/
+
+.idea/workspace.xml
+.idea/world-power-stations.iml
