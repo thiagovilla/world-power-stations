@@ -1,28 +1,29 @@
 {
-  "name": "world-power-stations-monorepo",
-  "version": "0.0.1",
+  "name": "world-power-stations",
   "private": true,
-  "workspaces": [
-    "apps/frontend"
-  ],
+  "type": "module",
   "scripts": {
-    "dev:frontend": "npm --workspace=apps/frontend run dev",
-    "dev:backend": "cd apps/backend && ./gradlew bootRun",
-    "build:frontend": "npm --workspace=apps/frontend run build",
-    "build:backend": "cd apps/backend && ./gradlew build -x test",
-    "build": "npm run build:frontend && npm run build:backend",
-    "test:frontend": "npm --workspace=apps/frontend run test",
-    "test:backend": "cd apps/backend && ./gradlew test",
-    "test": "npm run test:backend && npm run test:frontend",
-    "typecheck": "npm --workspace=apps/frontend run typecheck",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "tf:fmt": "cd terraform && terraform fmt",
-    "tf:init": "cd terraform && terraform init",
-    "tf:validate": "cd terraform && terraform validate",
-    "tf:plan": "cd terraform && terraform plan",
-    "tf:apply": "cd terraform && terraform apply",
-    "tf:destroy": "cd terraform && terraform destroy"
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@react-router/node": "^8.4.0",
+    "@react-router/serve": "^8.4.0",
+    "isbot": "^5.1.36",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.4.0"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^8.4.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^22",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.3"
   }
 }
