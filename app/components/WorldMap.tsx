@@ -1,13 +1,10 @@
-import { useEffect, useRef } from 'react';
-import {
-  Map as MapLibreMap,
-  NavigationControl,
-  type GeoJSONSource,
-    setWorkerUrl
-} from 'maplibre-gl';
+import {useEffect, useRef} from 'react';
+import {type GeoJSONSource, Map as MapLibreMap, NavigationControl, Popup, setWorkerUrl,} from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
-import type { PowerStation } from '~/types/station';
-import { stationsToGeoJSON } from '~/data/stations';
+import {createRoot, type Root} from 'react-dom/client';
+import type {PowerStation} from '~/types/station';
+import {stationsToGeoJSON} from '~/data/stations';
+import {StationTooltipCard} from '~/components/StationTooltipCard';
 
 setWorkerUrl(workerUrl);
 
@@ -30,8 +27,13 @@ const FUEL_COLORS: Record<string, string> = {
 const DEFAULT_STATION_COLOR = '#3b82f6';
 
 export function WorldMap({ stations = [], className = '' }: WorldMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const stationsRef = useRef<PowerStation[]>(stations);
+
+  useEffect(() => {
+    stationsRef.current = stations;
+  }, [stations]);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -47,6 +49,27 @@ export function WorldMap({ stations = [], className = '' }: WorldMapProps) {
 
     mapRef.current = map;
 
+    let activePopup: Popup | null = null;
+    let activeRoot: Root | null = null;
+    let closeTimer: ReturnType<typeof setTimeout> | null = null;
+    let hoveredStationId: string | null = null;
+
+    const cleanupPopup = () => {
+      hoveredStationId = null;
+      if (closeTimer) {
+        clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+      if (activePopup) {
+        activePopup.remove();
+        activePopup = null;
+      }
+      if (activeRoot) {
+        activeRoot.unmount();
+        activeRoot = null;
+      }
+    };
+
     // Add navigation controls (zoom, pitch, compass)
     map.addControl(new NavigationControl({ visualizePitch: true }), 'top-right');
 
@@ -54,7 +77,7 @@ export function WorldMap({ stations = [], className = '' }: WorldMapProps) {
       // Add station GeoJSON source
       map.addSource('stations', {
         type: 'geojson',
-        data: stationsToGeoJSON(stations),
+        data: stationsToGeoJSON(stationsRef.current),
       });
 
       // Add circle layer for station markers
@@ -101,9 +124,92 @@ export function WorldMap({ stations = [], className = '' }: WorldMapProps) {
           'circle-stroke-opacity': 0.95,
         },
       });
+
+      // Mouse enter station marker
+      map.on('mouseenter', 'stations-layer', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+
+        const feature = e.features?.[0];
+        if (!feature || !feature.properties) return;
+
+        const stationId = feature.properties.id as string;
+        if (hoveredStationId === stationId && activePopup) {
+          if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+          }
+          return;
+        }
+
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+
+        hoveredStationId = stationId;
+
+        const currentStations = stationsRef.current;
+        const station =
+          currentStations.find((s) => s.id === stationId) ||
+          (feature.properties as unknown as PowerStation);
+
+        if (activePopup) {
+          activePopup.remove();
+          activePopup = null;
+        }
+        if (activeRoot) {
+          activeRoot.unmount();
+          activeRoot = null;
+        }
+
+        const popupNode = document.createElement('div');
+        popupNode.className = 'station-tooltip-container';
+
+        popupNode.addEventListener('mouseenter', () => {
+          if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+          }
+        });
+
+        popupNode.addEventListener('mouseleave', () => {
+          if (closeTimer) clearTimeout(closeTimer);
+          closeTimer = setTimeout(() => {
+            cleanupPopup();
+          }, 200);
+        });
+
+        const root = createRoot(popupNode);
+        activeRoot = root;
+        root.render(<StationTooltipCard station={station} />);
+
+        const geometry = feature.geometry as { type: string; coordinates: [number, number] };
+        const coords = geometry.coordinates;
+
+        activePopup = new Popup({
+          closeButton: false,
+          closeOnClick: false,
+          offset: 14,
+          maxWidth: '340px',
+          className: 'station-popup',
+        })
+            .setLngLat(coords)
+            .setDOMContent(popupNode)
+            .addTo(map);
+      });
+
+      // Mouse leave station marker
+      map.on('mouseleave', 'stations-layer', () => {
+        map.getCanvas().style.cursor = '';
+        if (closeTimer) clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => {
+          cleanupPopup();
+        }, 200);
+      });
     });
 
     return () => {
+      cleanupPopup();
       map.remove();
       mapRef.current = null;
     };
