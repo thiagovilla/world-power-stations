@@ -4,12 +4,14 @@ World Power Stations (WPS) is an interactive world map of power generation and s
 
 ## Stack
 
-- Frontend: React, React Router, TailwindCSS
-- Backend: React Router API routes
+- Frontend: Remix (React Router V2), TailwindCSS
+- Backend: React Router API routes*
 - Map library: MapLibre GL JS
 - Database: PostgreSQL with PostGIS and full-text search via pgvector
 - Testing: Jest, React Testing Library
 - Infrastructure: deployed to Vercel
+
+*No GET /stations API route or PostGIS for now. Station data manually hardcoded and served as GeoJSON. MapLibre takes care of clustering (show top N for given bbox).
 
 ## Roadmap
 
@@ -93,4 +95,4 @@ This template comes with [Tailwind CSS](https://tailwindcss.com/) already config
 
 ---
 
-Built with ❤️ using React Router.
+Made with <span title="carinho">❤️</span> in Vale do Coquinho.

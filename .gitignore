@@ -6,6 +6,6 @@
 /.react-router/
 /build/
 
-.idea/workspace.xml
+.idea/*.xml
 .idea/world-power-stations.iml
 .junie
