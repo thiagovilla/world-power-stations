@@ -27,13 +27,6 @@ body {
   border-radius: 0.75rem !important;
 }
 
-.maplibregl-popup-tip {
-  border-top-color: rgba(15, 23, 42, 0.95) !important;
-  border-bottom-color: rgba(15, 23, 42, 0.95) !important;
-  border-left-color: rgba(15, 23, 42, 0.95) !important;
-  border-right-color: rgba(15, 23, 42, 0.95) !important;
-}
-
 .maplibregl-popup-anchor-top .maplibregl-popup-tip,
 .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
 .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
